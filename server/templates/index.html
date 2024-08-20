@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Image Similarity API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .endpoint {
+            margin-bottom: 20px;
+        }
+        code {
+            background: #eee;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Image Similarity API</h1>
+        <p>This API allows you to upload an image and find similar images based on cosine similarity.</p>
+
+        <div class="endpoint">
+            <h2>Endpoints:</h2>
+            <ul>
+                <li>
+                    <strong>Upload Image:</strong> <code>POST /upload</code>
+                    <p>Upload an image to find similar images.</p>
+                    <p><strong>Request:</strong></p>
+                    <ul>
+                        <li><code>file</code>: The image file to be uploaded.</li>
+                    </ul>
+                    <p><strong>Response:</strong> A JSON array with similar images and their similarity scores.</p>
+                </li>
+            </ul>
+        </div>
+
+        <div class="endpoint">
+            <h2>Example Request:</h2>
+            <code>POST http://localhost:5000/upload</code>
+            <p>Upload an image file using a tool like <a href="https://www.postman.com/" target="_blank">Postman</a> or via a form on your frontend.</p>
+        </div>
+
+        <footer>
+            <p>&copy; 2024 Image Similarity API. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
