@@ -16,6 +16,7 @@
         }
         h1 {
             color: #333;
+            text-align: center;
         }
         .container {
             max-width: 800px;
@@ -51,10 +52,14 @@
                 <li>
                     <strong>Upload Image:</strong> <code>POST /upload</code>
                     <p>Upload an image to find similar images.</p>
+                </li>
+                <li>
                     <p><strong>Request:</strong></p>
                     <ul>
                         <li><code>file</code>: The image file to be uploaded.</li>
                     </ul>
+                </li>
+                <li>
                     <p><strong>Response:</strong> A JSON array with similar images and their similarity scores.</p>
                 </li>
             </ul>
@@ -63,7 +68,7 @@
         <div class="endpoint">
             <h2>Example Request:</h2>
             <code>POST http://localhost:5000/upload</code>
-            <p>Upload an image file using a tool like <a href="https://www.postman.com/" target="_blank">Postman</a> or via a form on your frontend.</p>
+            <p>Upload an image file using a tool like Postman or via a form on your frontend.</p>
         </div>
 
         <footer>
