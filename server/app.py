@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify, render_template, send_file, abort
+from flask_cors import CORS
 import os
 from werkzeug.utils import secure_filename
 from data.data_reader import DataReader
 from similarity_models.cosine_similarity import get_cosine_similarity_score
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "http://localhost:5174"}})
 
 current_file_path = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_file_path, '..'))
@@ -40,8 +42,10 @@ def upload_image():
 
         _, ls_path_score = get_cosine_similarity_score(data_reader, file_path, size)
 
-        results = [{'image_path': path, 'score': score} for path, score in sorted(ls_path_score, key=lambda x: x[1], reverse=True)]
-        return jsonify(results), 200
+        top_10_results = [{'image_path': path, 'score': score}
+                          for path, score in sorted(ls_path_score, key=lambda x: x[1], reverse=True)[:10]]
+
+        return jsonify(top_10_results), 200
 
 
 @app.route('/images/<path:url>', methods=['GET'])
