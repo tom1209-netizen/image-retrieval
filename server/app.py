@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, send_file, abort
 import os
 from werkzeug.utils import secure_filename
 from data.data_reader import DataReader
@@ -6,13 +6,18 @@ from similarity_models.cosine_similarity import get_cosine_similarity_score
 
 app = Flask(__name__)
 
-# Configure the upload directory
-UPLOAD_FOLDER = 'uploads'
+current_file_path = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(current_file_path, '..'))
+UPLOAD_FOLDER = os.path.join(project_root, 'data', 'storage')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Ensure the upload folder exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+
+
+@app.route('/')
+def home():
+    return render_template('index.html')
 
 
 @app.route('/upload', methods=['POST'])
@@ -29,18 +34,26 @@ def upload_image():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
-        # Process the image with DataReader
         root_img_path = 'processed'
         size = (224, 224)
         data_reader = DataReader(root=root_img_path)
 
-        # Calculate cosine similarity
         _, ls_path_score = get_cosine_similarity_score(data_reader, file_path, size)
 
-        # Return the results as JSON
         results = [{'image_path': path, 'score': score} for path, score in sorted(ls_path_score, key=lambda x: x[1], reverse=True)]
         return jsonify(results), 200
 
 
+@app.route('/images/<path:url>', methods=['GET'])
+def serve_image(url):
+    url = "/" + url
+    try:
+        return send_file(url)
+    except FileNotFoundError:
+        abort(404, description="File not found.")
+    except Exception as e:
+        abort(500, description=f"An error occurred: {str(e)}")
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=7000, debug=True)
