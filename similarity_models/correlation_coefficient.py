@@ -36,4 +36,4 @@ if __name__ == '__main__':
 
     query, ls_path_score = get_correlation_coefficient_score(data_reader, query_path, size)
 
-    data_reader.plot_results(query_path=query_path, ls_path_score=ls_path_score, reverse=False)
+    data_reader.plot_results(query_path=query_path, ls_path_score=ls_path_score, reverse=True)

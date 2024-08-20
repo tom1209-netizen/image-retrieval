@@ -1,10 +1,11 @@
 import os
+
+import chromadb
+import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
-import matplotlib.pyplot as plt
 from chromadb.utils.embedding_functions import OpenCLIPEmbeddingFunction
 from tqdm import tqdm
-import chromadb
 
 MODULE_DIR = os.path.dirname(__file__)
 
@@ -42,9 +43,8 @@ class DataReader:
 
     def get_single_image_embedding(self, image):
         try:
-            image_array = np.array(image)
-            embedding = self.embedding_function._encode_image(image=image_array)
-            return embedding
+            embedding = self.embedding_function._encode_image(image=image)
+            return np.array(embedding)
         except Exception as e:
             print(f"Error creating embedding: {e}")
             return None
@@ -88,22 +88,16 @@ class DataReader:
             print(f"Error in searching for {image_path}. No results found.")
             return None
 
-    def plot_results(self, query_path, files_path, results, reverse=False):
-        if results is None:
-            print("No results to plot.")
-            return
-
+    def plot_results(self, query_path, ls_path_score, reverse):
         fig = plt.figure(figsize=(15, 9))
         fig.add_subplot(2, 3, 1)
         plt.imshow(self.read_image_from_path(query_path, size=(448, 448)))
-        plt.title(f"Query Image: {os.path.basename(query_path)}", fontsize=16)
+        plt.title(f"Query Image: {query_path.split('/')[1]}", fontsize=16)
         plt.axis("off")
-
-        for i, path in enumerate(sorted(results['ids'][0], key=lambda x: x[1], reverse=reverse)[:5], 2):
-            image_path = files_path[int(path.split('_')[-1])]
-            plt.subplot(2, 3, i)
-            plt.imshow(self.read_image_from_path(image_path, size=(448, 448)))
-            plt.title(f"Top {i - 1}: {os.path.basename(image_path)}")
+        for i, path in enumerate(sorted(ls_path_score, key=lambda x: x[1], reverse=reverse)[:5], 2):
+            fig.add_subplot(2, 3, i)
+            plt.imshow(self.read_image_from_path(path[0], size=(448, 448)))
+            plt.title(f"Top {i - 1}: {path[0].split('/')[8]}", fontsize=16)
             plt.axis("off")
         plt.show()
 
