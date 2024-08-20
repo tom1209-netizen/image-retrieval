@@ -2,14 +2,16 @@ import os
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
+from chromadb.utils.embedding_functions import OpenCLIPEmbeddingFunction
 
 MODULE_DIR = os.path.dirname(__file__)
+embedding_function = OpenCLIPEmbeddingFunction()
 
 
 class DataReader:
     def __init__(self, root):
         self.root = os.path.join(MODULE_DIR, root)
-        self.class_names = sorted(os.listdir(self.root))
+        self.class_names = sorted(os.listdir(os.path.join(self.root, 'train')))
 
     def read_image_from_path(self, path, size):
         if not os.path.isabs(path):
@@ -17,8 +19,13 @@ class DataReader:
         im = Image.open(path).convert('RGB').resize(size)
         return np.array(im)
 
+    def get_single_image_embedding(self, image):
+        embedding = embedding_function._encode_image(image=image)
+        return np.array(embedding)
+
     def folder_to_images(self, folder, size):
-        current_folder_path = os.path.join(self.root, folder)
+        train_folder_path = os.path.join(self.root, 'train')
+        current_folder_path = os.path.join(train_folder_path, folder)
         list_dir = [os.path.join(current_folder_path, name) for name in os.listdir(current_folder_path)]
         images_np = np.zeros(shape=(len(list_dir), *size, 3))
         images_path = []
@@ -43,7 +50,7 @@ class DataReader:
 
 
 if __name__ == '__main__':
-    data_reader = DataReader(root='processed/train')
+    data_reader = DataReader(root='processed')
     print(data_reader.class_names)
 
     images_np, images_path = data_reader.folder_to_images('basketball', size=(224, 224))
