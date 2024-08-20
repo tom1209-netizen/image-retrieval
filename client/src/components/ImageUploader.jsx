@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Upload, Button, Image, Row, Col, Spin, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 
@@ -6,6 +6,7 @@ const ImageUploader = () => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
+  const [fetchedImages, setFetchedImages] = useState([]);
 
   const handleUpload = ({ file }) => {
     setFile(file);
@@ -23,7 +24,7 @@ const ImageUploader = () => {
     formData.append('file', file);
 
     try {
-      const response = await fetch('http://localhost:5000/upload', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -43,6 +44,27 @@ const ImageUploader = () => {
     }
   };
 
+  useEffect(() => {
+    if (results.length > 0) {
+      // Fetch images for each result
+      const fetchImages = async () => {
+        const images = await Promise.all(
+          results.map(async (result) => {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_DOMAIN}/images/${result.image_path}`);
+            if (response.ok) {
+              const blob = await response.blob();
+              return URL.createObjectURL(blob);
+            } else {
+              return null;
+            }
+          })
+        );
+        setFetchedImages(images);
+      };
+      fetchImages();
+    }
+  }, [results]);
+
   return (
     <div style={{ padding: '50px' }}>
       <Row gutter={[16, 16]}>
@@ -58,18 +80,22 @@ const ImageUploader = () => {
         </Col>
       </Row>
 
-      {results.length > 0 && (
+      {fetchedImages.length > 0 && (
         <div style={{ marginTop: '30px' }}>
-          <h3>Similar Images:</h3>
+          <h3>Top 10 Similar Images:</h3>
           <Row gutter={[16, 16]}>
-            {results.map((result, index) => (
+            {fetchedImages.map((imageSrc, index) => (
               <Col key={index} span={6}>
-                <Image
-                  width={200}
-                  src={`http://localhost:5000/${result.image_path}`}
-                  alt={`Similar Image ${index + 1}`}
-                />
-                <p>Similarity Score: {result.score.toFixed(2)}</p>
+                {imageSrc ? (
+                  <Image
+                    width={200}
+                    src={imageSrc}
+                    alt={`Similar Image ${index + 1}`}
+                  />
+                ) : (
+                  <p>Image could not be loaded</p>
+                )}
+                <p>Similarity Score: {results[index].score.toFixed(2)}</p>
               </Col>
             ))}
           </Row>
